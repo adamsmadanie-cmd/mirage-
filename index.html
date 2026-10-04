@@ -112,14 +112,14 @@ import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile,signOut,RecaptchaVerifier,signInWithPhoneNumber} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {initializeFirestore,persistentLocalCache,collection,doc,setDoc,addDoc,updateDoc,query,where,orderBy,limit,onSnapshot,getDocs,serverTimestamp,increment,arrayUnion} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {getStorage,ref,uploadBytes,getDownloadURL} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-// Remplace par la config de ton projet : Console Firebase > Paramètres > Tes applications > Web
+// Config Firebase de Mirage
 const firebaseConfig = {
-  apiKey: "VOTRE_API_KEY",
-  authDomain: "VOTRE_PROJET.firebaseapp.com",
-  projectId: "VOTRE_PROJET",
-  storageBucket: "VOTRE_PROJET.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:xxxxxxxx"
+  apiKey: "AIzaSyBUCrzdvpdOzGpB-6okwRrz2LNu8blF1lI",
+  authDomain: "mirage-app-9d69b.firebaseapp.com",
+  projectId: "mirage-app-9d69b",
+  storageBucket: "mirage-app-9d69b.firebasestorage.app",
+  messagingSenderId: "366315302978",
+  appId: "1:366315302978:web:e34f2a7a2c2f3feb9cbddb"
 };
 
 
@@ -148,7 +148,7 @@ onAuthStateChanged(auth,async u=>{
   if(u){
     await setDoc(doc(db,'users',u.uid),{name:u.displayName||(u.email?u.email.split('@')[0]:''),email:(u.email||'').toLowerCase(),phone:u.phoneNumber||'',aura:S.aura,seen:serverTimestamp()},{merge:true});
     unsubs.push(onSnapshot(query(collection(db,'chats'),where('members','array-contains',u.uid)),s=>{chats=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>ms(b.lastTs)-ms(a.lastTs));render()}));
-    unsubs.push(onSnapshot(query(collection(db,'stories'),where('ts','>',new Date(Date.now()-864e5)),orderBy('ts','desc')),s=>{stories=s.docs.map(d=>({id:d.id,...d.data()}));render()}));
+    unsubs.push(onSnapshot(query(collection(db,'stories'),where('ts','>',new Date(Date.now()-864e4)),orderBy('ts','desc')),s=>{stories=s.docs.map(d=>({id:d.id,...d.data()}));render()}));
     unsubs.push(onSnapshot(query(collection(db,'posts'),orderBy('ts','desc'),limit(50)),s=>{posts=s.docs.map(d=>({id:d.id,...d.data()}));render()}));
   }
   render();
