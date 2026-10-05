@@ -109,7 +109,7 @@ service firebase.storage {
 -->
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile,signOut,RecaptchaVerifier,signInWithPhoneNumber} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {initializeFirestore,persistentLocalCache,collection,doc,setDoc,addDoc,updateDoc,query,where,orderBy,limit,onSnapshot,getDocs,serverTimestamp,increment,arrayUnion} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {getStorage,ref,uploadBytes,getDownloadURL} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 // Config Firebase de Mirage
@@ -131,7 +131,7 @@ const COL=['#7c5cff','#ff5c8a','#18b67a','#ff9f1c','#1e90ff','#e0457b'],BG=COL.s
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let S=JSON.parse(localStorage.getItem('mirage-s')||'null')||{accent:COL[0],sound:true,vib:true,dark:'auto',eph:false,aura:'😎'};
 const saveS=()=>localStorage.setItem('mirage-s',JSON.stringify(S));
-let me=null,tab='chats',cur=null,emoOn=false,compose=null,story=null,authMode='phone',err='';
+let me=null,tab='chats',cur=null,emoOn=false,compose=null,story=null,authMode='in',err='';
 let chats=[],msgs=[],stories=[],posts=[],unsubs=[],unsubMsgs=null,sbg=BG[0],pimg=null;
 const ms=t=>t?.toMillis?.()??Date.now(),ago=t=>new Date(ms(t)).toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'});
 
@@ -159,9 +159,9 @@ window.doAuth=async()=>{
     if(authMode==='up'){const c=await createUserWithEmailAndPassword(auth,e,p);const nn=n||e.split('@')[0];await updateProfile(c.user,{displayName:nn});await setDoc(doc(db,'users',c.user.uid),{name:nn},{merge:true});render()}
     else await signInWithEmailAndPassword(auth,e,p);
     fx(700,20);
-  }catch(x){err={'auth/invalid-credential':'Email ou mot de passe incorrect','auth/email-already-in-use':'Email déjà utilisé','auth/weak-password':'Mot de passe : 6 caractères minimum'}[x.code]||x.code;render()}
+  }catch(x){err={'auth/invalid-credential':'Email ou mot de passe incorrect','auth/email-already-in-use':'Email déjà utilisé','auth/weak-password':'Mot de passe : 6 caractères minimum','auth/invalid-email':'Email invalide'}[x.code]||x.code;render()}
 };
-window.swAuth=m=>{authMode=m;err='';ph.step='num';render()};
+window.swAuth=m=>{authMode=m;err='';render()};
 window.logout=()=>signOut(auth);
 
 // --- Actions ---
@@ -174,9 +174,9 @@ window.openChat=id=>{
 };
 window.closeChat=()=>{unsubMsgs?.();unsubMsgs=null;cur=null;msgs=[];emoOn=false;render()};
 window.newChat=async()=>{
-  const e=prompt('Numéro (avec indicatif, ex : +225…) ou email de ton contact :');if(!e)return;
-  const v=e.trim().toLowerCase(),isM=v.includes('@'),val=isM?v:'+'+v.replace(/\D/g,'');
-  const s=await getDocs(query(collection(db,'users'),where(isM?'email':'phone','==',val)));
+  const e=prompt('Email de ton contact :');if(!e)return;
+  const v=e.trim().toLowerCase();
+  const s=await getDocs(query(collection(db,'users'),where('email','==',v)));
   if(s.empty)return alert('Aucun utilisateur Mirage trouvé.');
   const o=s.docs[0],id=[me.uid,o.id].sort().join('_');
   await setDoc(doc(db,'chats',id),{members:[me.uid,o.id],names:{[me.uid]:me.displayName,[o.id]:o.data().name},auras:{[o.id]:o.data().aura||'🙂'},last:'',lastTs:serverTimestamp()},{merge:true});
@@ -201,32 +201,7 @@ window.like=async id=>{const p=posts.find(x=>x.id===id);if(p.likedBy?.includes(m
 window.set=(k,v)=>{S[k]=v;saveS();fx(600,12);if(k==='aura'&&me)updateDoc(doc(db,'users',me.uid),{aura:v});render()};
 window.go=t=>{tab=t;fx(520,8);render()};
 
-// --- Téléphone, pays, vocal ---
-const C=`CI|Côte d'Ivoire|225;SN|Sénégal|221;ML|Mali|223;BF|Burkina Faso|226;GN|Guinée|224;TG|Togo|228;BJ|Bénin|229;NE|Niger|227;CM|Cameroun|237;GA|Gabon|241;CG|Congo|242;CD|RD Congo|243;MA|Maroc|212;DZ|Algérie|213;TN|Tunisie|216;EG|Égypte|20;NG|Nigeria|234;GH|Ghana|233;KE|Kenya|254;ZA|Afrique du Sud|27;MG|Madagascar|261;FR|France|33;BE|Belgique|32;CH|Suisse|41;CA|Canada|1;US|États-Unis|1;GB|Royaume-Uni|44;DE|Allemagne|49;ES|Espagne|34;IT|Italie|39;PT|Portugal|351;BR|Brésil|55;HT|Haïti|509;IN|Inde|91;CN|Chine|86;JP|Japon|81;AE|Émirats arabes unis|971;SA|Arabie saoudite|966;LB|Liban|961;TR|Turquie|90;RU|Russie|7`.split(';').map(x=>x.split('|'));
-const flag=cc=>String.fromCodePoint(...[...cc].map(c=>127397+c.charCodeAt()));
-const ph={step:'num',ci:0,num:'',conf:null};
-window.setCi=i=>{ph.ci=i;$('#pf').textContent='+'+C[i][2]};
-window.sendCode=async()=>{
-  const n=$('#tel').value.replace(/\D/g,'');ph.num=n;err='';
-  if(n.length<6){err='Numéro invalide';return render()}
-  try{
-    window.rv?.clear?.();window.rv=new RecaptchaVerifier(auth,'rc',{size:'invisible'});
-    ph.conf=await signInWithPhoneNumber(auth,'+'+C[ph.ci][2]+n,window.rv);ph.step='code';fx(700,15);
-  }catch(x){err={'auth/invalid-phone-number':'Numéro invalide','auth/too-many-requests':'Trop d\'essais, réessaie plus tard','auth/operation-not-allowed':'Active « Téléphone » dans Firebase Authentication','auth/captcha-check-failed':'Vérification anti-robot échouée'}[x.code]||x.code;window.rv?.clear?.();window.rv=null}
-  render();
-};
-window.verifyCode=async()=>{err='';try{await ph.conf.confirm($('#code').value.trim());fx(700,20);ph.step='num'}catch(x){err=x.code==='auth/invalid-verification-code'?'Code incorrect':x.code;render()}};
-window.backNum=()=>{ph.step='num';err='';render()};
-window.saveName=async()=>{const n=$('#nm').value.trim();if(!n)return;await updateProfile(me,{displayName:n});await setDoc(doc(db,'users',me.uid),{name:n},{merge:true});fx(700,20);render()};
-function authScreen(){
-  const E=`<p style="color:#e0457b;min-height:20px;font-size:13px;margin:6px 0">${esc(err)}</p>`,lk=(m,t)=>`<p style="margin-top:14px"><a href="#" onclick="swAuth('${m}');return false" style="color:var(--ac)">${t}</a></p>`;
-  let f='';
-  if(me&&!me.displayName)f=`<p style="margin-bottom:10px">Dernière étape : comment t'appelles-tu ?</p><input class="f" id="nm" placeholder="Ton prénom">${E}<button class="btn" onclick="saveName()">Continuer</button>`;
-  else if(authMode==='phone'&&ph.step==='num')f=`<select class="f" onchange="setCi(this.selectedIndex)">${C.map((c,i)=>`<option ${i===ph.ci?'selected':''}>${flag(c[0])} ${c[1]} (+${c[2]})</option>`).join('')}</select><div style="display:flex;gap:8px;margin-top:8px;align-items:center"><b id="pf">+${C[ph.ci][2]}</b><input class="f" id="tel" type="tel" inputmode="tel" placeholder="Numéro de téléphone" value="${esc(ph.num)}"></div>${E}<button class="btn" onclick="sendCode()">Envoyer le code</button>${lk('in','Utiliser un email')}`;
-  else if(authMode==='phone')f=`<p style="margin-bottom:10px">Code envoyé au <b>+${C[ph.ci][2]} ${esc(ph.num)}</b></p><input class="f" id="code" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align:center;letter-spacing:8px;font-size:20px">${E}<button class="btn" onclick="verifyCode()">Valider</button><p style="margin-top:14px"><a href="#" onclick="backNum();return false" style="color:var(--ac)">Changer de numéro</a></p>`;
-  else f=`${authMode==='up'?'<input class="f" id="nm" placeholder="Prénom" style="margin-bottom:8px">':''}<input class="f" id="em" type="email" placeholder="Email" style="margin-bottom:8px"><input class="f" id="pw" type="password" placeholder="Mot de passe">${E}<button class="btn" onclick="doAuth()">${authMode==='up'?'Créer mon compte':'Connexion'}</button>${lk(authMode==='up'?'in':'up',authMode==='up'?'J\'ai déjà un compte':'Créer un compte email')}${lk('phone','Utiliser mon numéro de téléphone')}`;
-  return `<div class="hello"><div style="width:100%;max-width:320px"><div style="width:96px;height:96px;margin:auto">${LOGO}</div><h1 style="margin:14px 0 4px;font-size:34px">Mirage</h1><p style="color:var(--mu);margin-bottom:16px">Messagerie réelle, éphémère, à toi.</p>${f}</div></div>`;
-}
+// --- Enregistrement vocal ---
 let rec=null,recT=null,recS=0;
 const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
 window.startRec=async()=>{
@@ -261,7 +236,7 @@ function render(){
   if(tab==='chats')b=`<div class="stories"><div onclick="compose='story';render()"><div class="av" style="font-size:26px">＋</div>Ma story</div>${stories.map(s=>`<div onclick="story='${s.id}';render()"><div class="av ring">${esc(s.e)}</div>${esc(s.who)}</div>`).join('')}</div>`
     +(chats.map(c=>{const o=other(c);return`<div class="row" onclick="openChat('${c.id}')"><div class="av">${esc(o.e)}</div><div class="grow"><b>${esc(o.name)}</b><small>${esc(c.last||'Dis bonjour 👋')}</small></div><small style="color:var(--mu)">${c.last?ago(c.lastTs):''}</small></div>`}).join('')||'<p style="padding:24px;color:var(--mu);text-align:center">Aucune discussion.<br>Appuie sur ✚ pour inviter un contact par email.</p>');
   if(tab==='channels')b=posts.map(p=>`<div class="card"><b>${esc(p.title)}</b><div style="color:var(--mu);font-size:12px">${esc(p.by||'')} · ${new Date(ms(p.ts)).toLocaleDateString('fr')}</div><p style="margin-top:6px">${esc(p.text)}</p>${p.img?`<img src="${esc(p.img)}" loading="lazy">`:''}<div style="margin-top:8px"><button class="ib" onclick="like('${p.id}')">${p.likedBy?.includes(me.uid)?'❤️':'🤍'} <small>${p.likes||0}</small></button></div></div>`).join('')||'<p style="padding:24px;color:var(--mu)">Aucun post. Publie le premier !</p>';
-  if(tab==='settings')b=`<div class="card" style="text-align:center"><div class="av" style="margin:auto;width:70px;height:70px;font-size:34px">${S.aura}</div><h2 style="margin-top:8px">${esc(me.displayName)}</h2><small style="color:var(--mu)">${esc(me.email||me.phoneNumber)} · Aura du jour</small><div class="emo" style="background:none;border:0">${['😎','🥰','🤩','😴','🔥','🌙','🧘','🎧'].map(e=>`<span onclick="set('aura','${e}')">${e}</span>`).join('')}</div></div>
+  if(tab==='settings')b=`<div class="card" style="text-align:center"><div class="av" style="margin:auto;width:70px;height:70px;font-size:34px">${S.aura}</div><h2 style="margin-top:8px">${esc(me.displayName)}</h2><small style="color:var(--mu)">${esc(me.email||'')} · Aura du jour</small><div class="emo" style="background:none;border:0">${['😎','🥰','🤩','😴','🔥','🌙','🧘','🎧'].map(e=>`<span onclick="set('aura','${e}')">${e}</span>`).join('')}</div></div>
     ${sw('Sons','Bips à l\'envoi et à la réception','sound')}${sw('Vibrations','Retour haptique','vib')}${sw('Messages éphémères','Tes nouveaux messages s\'évaporent en 15 s','eph')}
     <div class="sw"><div>Thème</div><button class="btn" onclick="set('dark',{auto:'light',light:'dark',dark:'auto'}[S.dark])">${{auto:'Auto',light:'Clair',dark:'Sombre'}[S.dark]}</button></div>
     <div class="sw" style="display:block"><div>Couleur d'accent</div><div class="dots">${COL.map(c=>`<span style="background:${c};border-color:${c===S.accent?'var(--tx)':'transparent'}" onclick="set('accent','${c}')"></span>`).join('')}</div></div>
@@ -284,6 +259,15 @@ function overlays(){
   if(story){const s=stories.find(x=>x.id===story);if(s){h+=`<div class="sv" style="background:${esc(s.bg)}" onclick="story=null;render()"><div class="p"><i></i></div><small>${esc(s.e)} ${esc(s.who)}</small>${esc(s.text)}</div>`;const id=story;setTimeout(()=>{if(story===id){story=null;render()}},5000)}}
   return h;
 }
+function authScreen(){
+  const E=`<p style="color:#e0457b;min-height:20px;font-size:13px;margin:6px 0">${esc(err)}</p>`,lk=(m,t)=>`<p style="margin-top:14px"><a href="#" onclick="swAuth('${m}');return false" style="color:var(--ac)">${t}</a></p>`;
+  let f='';
+  if(me&&!me.displayName)f=`<p style="margin-bottom:10px">Dernière étape : comment t'appelles-tu ?</p><input class="f" id="nm" placeholder="Ton prénom">${E}<button class="btn" onclick="saveName()">Continuer</button>`;
+  else if(authMode==='up')f=`<input class="f" id="nm" placeholder="Prénom" style="margin-bottom:8px"><input class="f" id="em" type="email" placeholder="Email" style="margin-bottom:8px"><input class="f" id="pw" type="password" placeholder="Mot de passe">${E}<button class="btn" onclick="doAuth()">Créer mon compte</button>${lk('in','J\'ai déjà un compte')}`;
+  else f=`<input class="f" id="em" type="email" placeholder="Email" style="margin-bottom:8px"><input class="f" id="pw" type="password" placeholder="Mot de passe">${E}<button class="btn" onclick="doAuth()">Connexion</button>${lk('up','Créer un compte')}`;
+  return `<div class="hello"><div style="width:100%;max-width:320px"><div style="width:96px;height:96px;margin:auto">${LOGO}</div><h1 style="margin:14px 0 4px;font-size:34px">Mirage</h1><p style="color:var(--mu);margin-bottom:16px">Messagerie réelle, éphémère, à toi.</p>${f}</div></div>`;
+}
+window.saveName=async()=>{const n=$('#nm').value.trim();if(!n)return;await updateProfile(me,{displayName:n});await setDoc(doc(db,'users',me.uid),{name:n},{merge:true});fx(700,20);render()};
 window.$=$;window.render=render;
 Object.defineProperties(window,{compose:{get:()=>compose,set:v=>compose=v},story:{get:()=>story,set:v=>story=v},emoOn:{get:()=>emoOn,set:v=>emoOn=v},S:{get:()=>S},sbg:{get:()=>sbg,set:v=>sbg=v}});
 setInterval(()=>{if(cur&&S.eph&&msgs.some(m=>m.exp))render()},4000);
