@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7c5cff"><title>Mirage</title>
+<style>
+:root{--bg:#f6f5fb;--card:#fff;--tx:#17142a;--mu:#7b7893;--ac:#7c5cff;--me:var(--ac);--them:#ecebf5;--bd:#e4e2f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f0d1c;--card:#191631;--tx:#f1efff;--mu:#9a96bb;--them:#242043;--bd:#2b2750}}
+:root[data-theme="dark"]{--bg:#0f0d1c;--card:#191631;--tx:#f1efff;--mu:#9a96bb;--them:#242043;--bd:#2b2750}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+#app{height:100%;display:flex;flex-direction:column;max-width:560px;margin:auto;position:relative;overflow:hidden}
+header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bd)}
+header h1{font-size:22px;letter-spacing:-.5px;flex:1}
+main{flex:1;overflow-y:auto;padding:0 12px 12px}
+nav{display:flex;background:var(--card);border-top:1px solid var(--bd)}
+nav button{flex:1;padding:10px 0 8px;border:0;background:none;color:var(--mu);font-size:11px;cursor:pointer}
+nav button b{display:block;font-size:20px;font-weight:400}
+nav button.on{color:var(--ac);font-weight:600}
+.row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;cursor:pointer}
+.row:active{background:var(--them)}
+.av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:22px;background:linear-gradient(135deg,var(--ac),#ff7ac6);flex:none;overflow:hidden;position:relative}
+.av img{width:100%;height:100%;object-fit:cover}
+.av.ring{outline:3px solid var(--ac);outline-offset:2px}
+.grow{flex:1;min-width:0}.grow small{display:block;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;margin:10px 0}
+.card img{width:100%;border-radius:12px;margin-top:8px}
+.stories{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 10px}
+.stories div{text-align:center;font-size:11px;color:var(--mu);cursor:pointer;flex:none}
+.fab{position:absolute;right:18px;bottom:76px;width:54px;height:54px;border-radius:50%;border:0;background:var(--ac);color:#fff;font-size:26px;box-shadow:0 6px 20px #0004;cursor:pointer;z-index:2}
+.over{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;z-index:5;padding-top:env(safe-area-inset-top,0px)}
+.msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+.m{max-width:78%;padding:8px 12px;border-radius:18px;background:var(--them);align-self:flex-start;word-wrap:break-word}
+.m.me{background:var(--me);color:#fff;align-self:flex-end}
+.m img{max-width:100%;border-radius:10px;display:block}
+.m i{display:block;font-size:10px;opacity:.6;font-style:normal;margin-top:2px}
+.m.eph{animation:fade 15s linear forwards}
+@keyframes fade{to{opacity:.25;filter:blur(2px)}}
+.bar{display:flex;gap:6px;padding:8px;background:var(--card);border-top:1px solid var(--bd);align-items:center}
+.bar input[type=text],textarea,input.f{flex:1;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:22px;padding:10px 14px;font:inherit;outline:0;width:100%}
+textarea{border-radius:14px;resize:none;margin-top:8px}
+.ib{border:0;background:none;font-size:22px;cursor:pointer;padding:4px 6px;color:var(--tx)}
+.send{background:var(--ac);color:#fff;border-radius:50%;width:40px;height:40px;font-size:18px}
+.emo{display:grid;grid-template-columns:repeat(8,1fr);padding:8px;background:var(--card);border-top:1px solid var(--bd)}
+.emo span{font-size:24px;text-align:center;padding:4px;cursor:pointer}
+.sw{display:flex;align-items:center;justify-content:space-between;padding:14px 6px;border-bottom:1px solid var(--bd)}
+.sw small{display:block;color:var(--mu)}
+.tg{width:50px;height:30px;border-radius:15px;background:var(--them);border:0;position:relative;cursor:pointer;transition:.2s;flex:none}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 4px #0004}
+.tg.on{background:var(--ac)}.tg.on::after{left:23px}
+.dots{display:flex;gap:10px;margin-top:8px}.dots span{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent}
+.btn{border:0;background:var(--ac);color:#fff;border-radius:22px;padding:10px 18px;font:inherit;cursor:pointer}
+.btn.sec{background:var(--them);color:var(--tx)}
+.btn.danger{background:#e0457b}
+.sv{position:absolute;inset:0;z-index:9;display:grid;place-items:center;color:#fff;font-size:28px;text-align:center;padding:30px;font-weight:600}
+.sv .p{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;height:3px;background:#fff5;border-radius:2px;overflow:hidden}
+.sv .p i{display:block;height:100%;background:#fff;animation:pr 5s linear forwards}
+@keyframes pr{from{width:0}to{width:100%}}
+.sv small{position:absolute;top:calc(env(safe-area-inset-top,0px) + 22px);left:16px;font-size:14px}
+.hello{display:grid;place-items:center;height:100%;text-align:center;padding:24px}
+.hello .logo{width:96px;height:96px;margin:auto}
+.m audio{width:210px;max-width:100%;height:36px}.recdot{color:#e0457b;animation:bl 1s infinite;margin:0 8px}@keyframes bl{50%{opacity:.2}}
+.lg{overflow:visible}.rp{fill:none;stroke:#0a3cff;stroke-width:2;transform-origin:32px 32px;opacity:0;animation:rp 2.4s ease-out infinite}.rp.r2{animation-delay:1.2s;stroke:#4d8dff}@keyframes rp{0%{transform:scale(.95);opacity:.8}100%{transform:scale(1.9);opacity:0}}.fl{transform-origin:32px 32px;animation:fl 1.6s ease-in-out infinite alternate}@keyframes fl{from{filter:drop-shadow(0 0 3px #0a3cff99);transform:scale(1)}to{filter:drop-shadow(0 0 9px #4d8dffdd);transform:scale(1.05)}}@media(prefers-reduced-motion:reduce){.rp,.fl{animation:none}}
+.profile-head{display:flex;flex-direction:column;align-items:center;padding:20px;background:linear-gradient(135deg,var(--ac),#ff7ac6);border-radius:0 0 30px 30px;color:#fff;margin:-12px -12px 12px}
+.profile-head .av{width:100px;height:100px;font-size:44px;border:4px solid #fff;box-shadow:0 4px 20px #0003}
+.profile-head h2{margin-top:10px;font-size:24px}
+.profile-head p{opacity:.9;font-size:13px}
+.hashtag{display:inline-block;background:var(--them);color:var(--ac);padding:4px 10px;border-radius:12px;font-size:12px;margin:3px}
+.music-player{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border-radius:16px;margin:8px 0;border:1px solid var(--bd)}
+.music-player .cover{width:50px;height:50px;border-radius:10px;background:linear-gradient(135deg,var(--ac),#ff7ac6);display:grid;place-items:center;font-size:24px}
+.vitrine{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.vitrine .item{aspect-ratio:1;border-radius:14px;background:linear-gradient(135deg,var(--ac),#ff7ac6);display:grid;place-items:center;font-size:32px;color:#fff;cursor:pointer;overflow:hidden;position:relative}
+.vitrine .item img,.vitrine .item video{width:100%;height:100%;object-fit:cover}
+.vitrine .item small{position:absolute;bottom:4px;left:6px;font-size:10px;background:#0008;padding:2px 6px;border-radius:8px}
+.contact-sync{display:flex;align-items:center;gap:10px;padding:14px;background:var(--card);border-radius:16px;margin:8px 0;border:1px solid var(--bd)}
+.idea-bar{display:flex;gap:8px;overflow-x:auto;padding:10px 0}
+.idea-bar button{flex:none;padding:8px 14px;border-radius:20px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:13px;cursor:pointer}
+.idea-bar button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.stat-grid div{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;text-align:center}
+.stat-grid b{display:block;font-size:22px;color:var(--ac)}
+.stat-grid small{color:var(--mu);font-size:11px}
+.upload-zone{border:2px dashed var(--bd);border-radius:16px;padding:30px;text-align:center;color:var(--mu);cursor:pointer;margin:10px 0}
+.upload-zone:hover{border-color:var(--ac);color:var(--ac)}
+</style>
+</head><body><div id="app"></div><div id="rc"></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {initializeFirestore,persistentLocalCache,collection,doc,setDoc,getDoc,addDoc,updateDoc,deleteDoc,query,where,orderBy,limit,onSnapshot,getDocs,serverTimestamp,increment,arrayUnion,arrayRemove} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getStorage,ref,uploadBytes,getDownloadURL} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBUCrzdvpdOzGpB-6okwRrz2LNu8blF1lI",
+  authDomain: "mirage-app-9d69b.firebaseapp.com",
+  projectId: "mirage-app-9d69b",
+  storageBucket: "mirage-app-9d69b.firebasestorage.app",
+  messagingSenderId: "366315302978",
+  appId: "1:366315302978:web:e34f2a7a2c2f3feb9cbddb"
+};
+
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=initializeFirestore(app,{localCache:persistentLocalCache()}),st=getStorage(app);
+const LOGO='<svg class="lg" viewBox="0 0 64 64" width="100%" height="100%"><defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0000ff"/><stop offset=".55" stop-color="#0a3cff"/><stop offset="1" stop-color="#4d8dff"/></linearGradient></defs><circle class="rp" cx="32" cy="32" r="30"/><circle class="rp r2" cx="32" cy="32" r="30"/><g class="fl"><rect width="64" height="64" rx="18" fill="url(#g)"/><path d="M14 44V22l9 12 9-12v22M38 44c0-8 6-12 12-12M38 36c0-6 5-9 10-9" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
+const ICON='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0000ff"/><stop offset=".55" stop-color="#0a3cff"/><stop offset="1" stop-color="#4d8dff"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#g)"/><path d="M14 44V22l9 12 9-12v22M38 44c0-8 6-12 12-12M38 36c0-6 5-9 10-9" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const EMO=['😀','😂','🥹','😍','😎','🤯','🥳','😭','🙏','🔥','💜','✨','👍','👀','🎉','🫶','💬','🌈','🦋','🌙','⚡','🎧','📸','🍕'];
+const COL=['#7c5cff','#ff5c8a','#18b67a','#ff9f1c','#1e90ff','#e0457b'],BG=COL.slice(0,5);
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S=JSON.parse(localStorage.getItem('mirage-s')||'null')||{accent:COL[0],sound:true,vib:true,dark:'auto',eph:false,aura:'😎'};
+const saveS=()=>localStorage.setItem('mirage-s',JSON.stringify(S));
+let me=null,meData=null,tab='chats',cur=null,emoOn=false,compose=null,story=null,editProfile=false,viewProfile=null,authMode='in',err='';
+let chats=[],msgs=[],stories=[],posts=[],contacts=[],unsubs=[],unsubMsgs=null,unsubMe=null,sbg=BG[0],pimg=null,pvideo=null,storyMedia=null,storyType='text',vitrineTab='all';
+const ms=t=>t?.toMillis?.()??Date.now(),ago=t=>new Date(ms(t)).toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'});
+
+let ac;function beep(f=660,d=.08){if(!S.sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}}
+const vib=p=>{if(S.vib&&navigator.vibrate)navigator.vibrate(p)},fx=(f,p=12)=>{beep(f);vib(p)};
+function theme(){const r=document.documentElement;r.style.setProperty('--ac',S.accent);S.dark==='auto'?r.removeAttribute('data-theme'):r.setAttribute('data-theme',S.dark)}
+
+// === Stockage local sur téléphone ===
+async function saveLocal(key,blob){return new Promise(res=>{const r=new FileReader();r.onload=()=>{try{localStorage.setItem('mirage-'+key,r.result);res(r.result)}catch(e){res(null)}};r.readAsDataURL(blob)})}
+function getLocal(key){return localStorage.getItem('mirage-'+key)}
+async function shrink(file,max=1200){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const k=Math.min(1,max/i.width),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);c.toBlob(res,'image/jpeg',.8)};i.src=r.result};r.readAsDataURL(file)})}
+async function upload(file,type='image'){const b=type==='image'?await shrink(file):file;const ext=type==='video'?'mp4':'jpg';const r=ref(st,`u/${me.uid}/${Date.now()}.${ext}`);await uploadBytes(r,b,{contentType:type==='video'?'video/mp4':'image/jpeg'});return getDownloadURL(r)}
+
+// === Auth ===
+onAuthStateChanged(auth,async u=>{
+  unsubs.forEach(f=>f());unsubs=[];unsubMe?.();me=u;
+  if(u){
+    await setDoc(doc(db,'users',u.uid),{name:u.displayName||(u.email?u.email.split('@')[0]:''),email:(u.email||'').toLowerCase(),aura:S.aura,seen:serverTimestamp()},{merge:true});
+    unsubMe=onSnapshot(doc(db,'users',u.uid),d=>{meData=d.data();render()});
+    unsubs.push(onSnapshot(query(collection(db,'chats'),where('members','array-contains',u.uid)),s=>{chats=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>ms(b.lastTs)-ms(a.lastTs));render()}));
+    unsubs.push(onSnapshot(query(collection(db,'stories'),where('ts','>',new Date(Date.now()-864e4)),orderBy('ts','desc')),s=>{stories=s.docs.map(d=>({id:d.id,...d.data()}));render()}));
+    unsubs.push(onSnapshot(query(collection(db,'posts'),orderBy('ts','desc'),limit(50)),s=>{posts=s.docs.map(d=>({id:d.id,...d.data()}));render()}));
+  }
+  render();
+});
+window.doAuth=async()=>{
+  const e=$('#em').value.trim(),p=$('#pw').value,n=$('#nm')?.value.trim();err='';
+  try{
+    if(authMode==='up'){const c=await createUserWithEmailAndPassword(auth,e,p);const nn=n||e.split('@')[0];await updateProfile(c.user,{displayName:nn});await setDoc(doc(db,'users',c.user.uid),{name:nn,firstName:'',lastName:'',bio:'',civilite:'',hashtags:[]},{merge:true});render()}
+    else await signInWithEmailAndPassword(auth,e,p);
+    fx(700,20);
+  }catch(x){err={'auth/invalid-credential':'Email ou mot de passe incorrect','auth/email-already-in-use':'Email déjà utilisé','auth/weak-password':'Mot de passe : 6 caractères minimum','auth/invalid-email':'Email invalide'}[x.code]||x.code;render()}
+};
+window.swAuth=m=>{authMode=m;err='';render()};
+window.logout=()=>signOut(auth);
+
+// === Actions chat ===
+window.openChat=id=>{
+  cur=id;fx(560,8);unsubMsgs?.();
+  unsubMsgs=onSnapshot(query(collection(db,'chats',id,'messages'),orderBy('ts'),limit(200)),s=>{
+    const incoming=s.docChanges().some(c=>c.type==='added'&&c.doc.data().from!==me.uid&&!s.metadata.fromCache&&msgs.length);
+    msgs=s.docs.map(d=>({id:d.id,...d.data()}));if(incoming)fx(880,[10,40,10]);render()});
+  render();
+};
+window.closeChat=()=>{unsubMsgs?.();unsubMsgs=null;cur=null;msgs=[];emoOn=false;render()};
+window.newChat=async()=>{
+  const e=prompt('Email ou nom de ton contact :');if(!e)return;
+  const v=e.trim().toLowerCase();
+  let s=await getDocs(query(collection(db,'users'),where('email','==',v)));
+  if(s.empty)s=await getDocs(query(collection(db,'users'),where('name','==',e.trim())));
+  if(s.empty)return alert('Aucun utilisateur Mirage trouvé.');
+  const o=s.docs[0],id=[me.uid,o.id].sort().join('_');
+  await setDoc(doc(db,'chats',id),{members:[me.uid,o.id],names:{[me.uid]:me.displayName,[o.id]:o.data().name},auras:{[o.id]:o.data().aura||'🙂'},last:'',lastTs:serverTimestamp()},{merge:true});
+  openChat(id);
+};
+async function post(c,data,preview){await addDoc(collection(db,'chats',c,'messages'),{from:me.uid,ts:serverTimestamp(),exp:S.eph?Date.now()+15000:0,...data});await updateDoc(doc(db,'chats',c),{last:preview,lastTs:serverTimestamp()})}
+window.send=async()=>{const i=$('#mi'),t=i.value.trim();if(!t)return;i.value='';fx(700,10);emoOn=false;await post(cur,{text:t},t);render()};
+window.sendImg=async f=>{if(!f)return;fx(700,10);await post(cur,{img:await upload(f)},'📷 Photo')};
+window.sendVideo=async f=>{if(!f)return;fx(700,10);$('#bar-status')&&($('#bar-status').textContent='Envoi…');await post(cur,{video:await upload(f,'video')},'🎥 Vidéo')};
+window.addE=e=>{const i=$('#mi');i.value+=e;vib(6);i.focus()};
+
+// === Contact sync (puce) ===
+window.syncContacts=async()=>{
+  if(!navigator.contacts?.select)return alert('API Contacts non supportée sur ce navigateur. Utilise Chrome Android.');
+  try{
+    const cs=await navigator.contacts.select(['name','tel','email'],{multiple:true});
+    contacts=cs.map(c=>({name:c.name?.[0]||'Contact',tel:c.tel?.[0]||'',email:c.email?.[0]||''}));
+    fx(900,20);render();
+  }catch(e){alert('Permission refusée ou annulée.')}
+};
+window.inviteContact=async c=>{
+  const v=(c.email||c.tel||'').toLowerCase();
+  if(!v)return alert('Pas de contact valide.');
+  const s=await getDocs(query(collection(db,'users'),where(c.email?'email':'phone','==',v)));
+  if(s.empty)return alert('Ce contact n\'est pas sur Mirage.');
+  const o=s.docs[0],id=[me.uid,o.id].sort().join('_');
+  await setDoc(doc(db,'chats',id),{members:[me.uid,o.id],names:{[me.uid]:me.displayName,[o.id]:o.data().name},auras:{[o.id]:o.data().aura||'🙂'},last:'',lastTs:serverTimestamp()},{merge:true});
+  openChat(id);
+};
+
+// === Posts / Chaînes ===
+window.publish=async()=>{
+  const t=$('#pt').value.trim(),x=$('#px').value.trim();if(!t&&!x)return;
+  await addDoc(collection(db,'posts'),{uid:me.uid,title:t||'Sans titre',text:x,img:pimg||'',video:pvideo||'',likes:0,likedBy:[],comments:[],ts:serverTimestamp(),by:me.displayName,hashtags:(x.match(/#\w+/g)||[])},);
+  pimg=null;pvideo=null;compose=null;fx(900,[10,30,10]);render();
+};
+window.pickPost=async f=>{if(!f)return;$('#pv').innerHTML='Envoi…';pimg=await upload(f);$('#pv').innerHTML=`<img src="${pimg}" style="width:100%;border-radius:12px;margin-top:8px">`};
+window.pickPostVideo=async f=>{if(!f)return;$('#pv').innerHTML='Envoi vidéo…';pvideo=await upload(f,'video');$('#pv').innerHTML=`<video src="${pvideo}" controls style="width:100%;border-radius:12px;margin-top:8px"></video>`};
+window.like=async id=>{const p=posts.find(x=>x.id===id);if(p.likedBy?.includes(me.uid))return;fx(1000,12);await updateDoc(doc(db,'posts',id),{likes:increment(1),likedBy:arrayUnion(me.uid)})};
+window.unlike=async id=>{fx(400,8);await updateDoc(doc(db,'posts',id),{likes:increment(-1),likedBy:arrayRemove(me.uid)})};
+window.delPost=async id=>{if(!confirm('Supprimer ce post ?'))return;await deleteDoc(doc(db,'posts',id));fx(400,20);render()};
+window.comment=async id=>{const t=prompt('Ton commentaire :');if(!t)return;await updateDoc(doc(db,'posts',id),{comments:arrayUnion({uid:me.uid,by:me.displayName,text:t,ts:Date.now()})});fx(800,10);render()};
+
+// === Stories média ===
+window.addStory=async()=>{
+  const t=$('#stx').value.trim();if(!t&&!storyMedia)return;
+  await addDoc(collection(db,'stories'),{uid:me.uid,who:me.displayName,e:S.aura,text:t,bg:sbg,img:storyType==='image'?storyMedia:'',video:storyType==='video'?storyMedia:'',ts:serverTimestamp()});
+  storyMedia=null;storyType='text';compose=null;fx(900,20);render();
+};
+window.pickStoryMedia=async f=>{if(!f)return;$('#sv-pv').innerHTML='Envoi…';
+  if(f.type.startsWith('video')){storyMedia=await upload(f,'video');storyType='video';$('#sv-pv').innerHTML=`<video src="${storyMedia}" controls style="width:100%;border-radius:12px"></video>`}
+  else{storyMedia=await upload(f);storyType='image';$('#sv-pv').innerHTML=`<img src="${storyMedia}" style="width:100%;border-radius:12px">`}};
+
+// === Profil ===
+window.editProfileFn=()=>{editProfile=true;render()};
+window.saveProfile=async()=>{
+  const d={firstName:$('#pf-n').value.trim(),lastName:$('#pf-l').value.trim(),bio:$('#pf-b').value.trim(),civilite:$('#pf-c').value,hashtags:$('#pf-h').value.split(/[,\s]+/).filter(Boolean),name:($('#pf-n').value.trim()+' '+$('#pf-l').value.trim()).trim()||me.displayName};
+  await updateDoc(doc(db,'users',me.uid),d);if(d.name!==me.displayName)await updateProfile(me,{displayName:d.name});
+  editProfile=false;fx(900,20);render();
+};
+window.uploadAvatar=async f=>{if(!f)return;const url=await upload(f);await updateDoc(doc(db,'users',me.uid),{avatar:url});fx(900,20);render()};
+window.viewProfileFn=uid=>{viewProfile=uid;render()};
+window.closeProfile=()=>{viewProfile=null;render()};
+
+// === Vitrine ===
+window.setVitrine=t=>{vitrineTab=t;render()};
+
+// === Settings ===
+window.set=(k,v)=>{S[k]=v;saveS();fx(600,12);if(k==='aura'&&me)updateDoc(doc(db,'users',me.uid),{aura:v});render()};
+window.go=t=>{tab=t;fx(520,8);render()};
+window.saveName=async()=>{const n=$('#nm').value.trim();if(!n)return;await updateProfile(me,{displayName:n});await setDoc(doc(db,'users',me.uid),{name:n},{merge:true});fx(700,20);render()};
+
+// === Vocal ===
+let rec=null,recT=null,recS=0;
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+window.startRec=async()=>{
+  if(rec)return;
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({audio:true});
+    const mt=['audio/webm;codecs=opus','audio/webm','audio/mp4'].find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||'';
+    const r=new MediaRecorder(s,mt?{mimeType:mt}:{}),ch=[];r.ondataavailable=e=>ch.push(e.data);
+    rec={r,ch,send:false,dur:0,mt:(r.mimeType||mt||'audio/webm')};
+    r.onstop=async()=>{s.getTracks().forEach(t=>t.stop());clearInterval(recT);const o=rec;rec=null;render();
+      if(o.send&&ch.length&&o.dur>0){const b=new Blob(ch,{type:o.mt}),rf=ref(st,`u/${me.uid}/${Date.now()}.${o.mt.includes('mp4')?'m4a':'webm'}`);await uploadBytes(rf,b,{contentType:o.mt.split(';')[0]});await post(cur,{audio:await getDownloadURL(rf),dur:o.dur},'🎤 Vocal')}};
+    r.start();recS=0;fx(500,30);recT=setInterval(()=>{recS++;const e=$('#rt');if(e)e.textContent=fmt(recS)},1000);render();
+  }catch(e){alert('Micro non autorisé.')}
+};
+window.stopRec=send=>{if(!rec)return;rec.send=send;rec.dur=recS;fx(send?800:400,15);rec.r.stop()};
+
+// === Rendu ===
+const sw=(t,d,k)=>`<div class="sw"><div>${t}<small>${d}</small></div><button class="tg ${S[k]?'on':''}" onclick="set('${k}',!S['${k}'])"></button></div>`;
+const other=c=>{const id=c.members.find(m=>m!==me.uid);return{id,name:c.names?.[id]||'Contact',e:c.auras?.[id]||'🙂'}};
+const avHTML=(u,size=46)=>u?.avatar?`<div class="av" style="width:${size}px;height:${size}px"><img src="${esc(u.avatar)}"></div>`:`<div class="av" style="width:${size}px;height:${size}px;font-size:${size*.48}px">${esc(u?.aura||'🙂')}</div>`;
+
+function render(){
+  theme();const A=$('#app'),keep=$('#mi')?.value||'',focus=document.activeElement?.id==='mi',tx=[$('#pt')?.value,$('#px')?.value,$('#stx')?.value];
+  if(!me||!me.displayName){A.innerHTML=authScreen();return}
+  if(editProfile){A.innerHTML=editProfileScreen();return}
+  if(viewProfile){A.innerHTML=viewProfileScreen(viewProfile);return}
+  let b='';
+  if(tab==='chats')b=`<div class="stories"><div onclick="compose='story';render()"><div class="av" style="font-size:26px">＋</div>Ma story</div>${stories.map(s=>`<div onclick="story='${s.id}';render()"><div class="av ring">${s.img?`<img src="${esc(s.img)}">`:s.video?`<video src="${esc(s.video)}" muted></video>`:esc(s.e)}</div>${esc(s.who)}</div>`).join('')}</div>`
+    +(chats.map(c=>{const o=other(c);return`<div class="row" onclick="openChat('${c.id}')"><div class="av">${esc(o.e)}</div><div class="grow"><b>${esc(o.name)}</b><small>${esc(c.last||'Dis bonjour 👋')}</small></div><small style="color:var(--mu)">${c.last?ago(c.lastTs):''}</small></div>`}).join('')||'<p style="padding:24px;color:var(--mu);text-align:center">Aucune discussion.<br>Appuie sur ✚ ou synchronise tes contacts.</p>');
+  if(tab==='vitrine'){
+    const tabs=[['all','🌍 Tout'],['posts','📣 Posts'],['stories','✨ Stories'],['media','🖼️ Médias']];
+    b=`<div class="idea-bar">${tabs.map(([k,l])=>`<button class="${vitrineTab===k?'on':''}" onclick="setVitrine('${k}')">${l}</button>`).join('')}</div>`;
+    if(vitrineTab==='all'||vitrineTab==='posts')b+=posts.map(p=>`<div class="card"><div style="display:flex;align-items:center;gap:8px"><div class="av" style="width:36px;height:36px;font-size:18px">🙂</div><div class="grow"><b>${esc(p.by||'')}</b><small>${new Date(ms(p.ts)).toLocaleString('fr')}</small></div>${p.uid===me.uid?`<button class="ib" onclick="delPost('${p.id}')">🗑️</button>`:''}</div><h3 style="margin-top:8px">${esc(p.title)}</h3><p style="margin-top:4px">${esc(p.text)}</p>${p.img?`<img src="${esc(p.img)}" loading="lazy">`:''}${p.video?`<video src="${esc(p.video)}" controls style="width:100%;border-radius:12px;margin-top:8px"></video>`:''}<div style="margin-top:8px;display:flex;gap:8px"><button class="ib" onclick="${p.likedBy?.includes(me.uid)?`unlike('${p.id}')`:`like('${p.id}')`}">${p.likedBy?.includes(me.uid)?'❤️':'🤍'} <small>${p.likes||0}</small></button><button class="ib" onclick="comment('${p.id}')">💬 <small>${p.comments?.length||0}</small></button></div>${(p.comments||[]).slice(-3).map(c=>`<div style="font-size:12px;color:var(--mu);margin-top:4px"><b>${esc(c.by)}</b> ${esc(c.text)}</div>`).join('')}</div>`).join('');
+    if(vitrineTab==='all'||vitrineTab==='stories')b+=`<h3 style="margin:12px 0 6px">Stories</h3><div class="vitrine">${stories.map(s=>`<div class="item" onclick="story='${s.id}';render()">${s.img?`<img src="${esc(s.img)}">`:s.video?`<video src="${esc(s.video)}" muted></video>`:esc(s.e)}<small>${esc(s.who)}</small></div>`).join('')}</div>`;
+    if(vitrineTab==='all'||vitrineTab==='media')b+=`<h3 style="margin:12px 0 6px">Médias partagés</h3><div class="vitrine">${posts.filter(p=>p.img||p.video).map(p=>`<div class="item">${p.img?`<img src="${esc(p.img)}">`:`<video src="${esc(p.video)}" muted></video>`}</div>`).join('')||'<p style="color:var(--mu)">Aucun média.</p>'}</div>`;
+    b+=`<button class="fab" onclick="compose='post';render()">✍️</button>`;
+  }
+  if(tab==='contacts')b=`
+    <div class="contact-sync"><div style="font-size:32px">📇</div><div class="grow"><b>Synchroniser mes contacts</b><small>Importe tes contacts depuis la puce du téléphone</small></div><button class="btn" onclick="syncContacts()">Sync</button></div>
+    ${contacts.length?contacts.map(c=>`<div class="row"><div class="av">👤</div><div class="grow"><b>${esc(c.name)}</b><small>${esc(c.tel||c.email||'')}</small></div><button class="btn sec" onclick='inviteContact(${JSON.stringify(c)})'>Inviter</button></div>`).join(''):'<p style="padding:24px;color:var(--mu);text-align:center">Aucun contact importé. Appuie sur Sync.</p>'}`;
+  if(tab==='channels')b=posts.filter(p=>p.hashtags?.length).map(p=>`<div class="card"><b>${esc(p.title)}</b><div style="color:var(--mu);font-size:12px">${esc(p.by||'')} · ${new Date(ms(p.ts)).toLocaleDateString('fr')}</div><p style="margin-top:6px">${esc(p.text)}</p>${p.hashtags?.map(h=>`<span class="hashtag">${esc(h)}</span>`).join('')||''}</div>`).join('')||'<p style="padding:24px;color:var(--mu)">Aucun post avec #hashtag. Ajoute des #hashtags à tes posts !</p>';
+  if(tab==='settings'){
+    const u=meData||{};
+    b=`<div class="profile-head">${avHTML({avatar:u.avatar,aura:S.aura},100)}<h2>${esc(u.name||me.displayName)}</h2><p>${esc(me.email)}</p>${u.bio?`<p style="margin-top:6px;max-width:80%">${esc(u.bio)}</p>`:''}<div style="margin-top:8px">${(u.hashtags||[]).map(h=>`<span class="hashtag" style="background:#ffffff33;color:#fff">${esc(h)}</span>`).join('')}</div><button class="btn sec" style="margin-top:12px" onclick="editProfileFn()">✏️ Modifier mon profil</button></div>
+    <div class="stat-grid"><div><b>${chats.length}</b><small>Discussions</small></div><div><b>${posts.filter(p=>p.uid===me.uid).length}</b><small>Posts</small></div><div><b>${stories.filter(s=>s.uid===me.uid).length}</b><small>Stories</small></div></div>
+    <div class="card"><b>🎵 Musique du profil</b><div class="music-player"><div class="cover">🎵</div><div class="grow"><b>${esc(S.music?.title||'Aucune')}</b><small>${esc(S.music?.artist||'Choisis une musique')}</small></div><button class="btn sec" onclick="S.music={title:'Ambiance Mirage',artist:'Mirage Studio'};saveS();render()">Changer</button></div></div>
+    ${sw('Sons','Bips à l\'envoi et à la réception','sound')}${sw('Vibrations','Retour haptique','vib')}${sw('Messages éphémères','Évaporation en 15 s','eph')}
+    <div class="sw"><div>Thème</div><button class="btn" onclick="set('dark',{auto:'light',light:'dark',dark:'auto'}[S.dark])">${{auto:'Auto',light:'Clair',dark:'Sombre'}[S.dark]}</button></div>
+    <div class="sw" style="display:block"><div>Couleur d'accent</div><div class="dots">${COL.map(c=>`<span style="background:${c};border-color:${c===S.accent?'var(--tx)':'transparent'}" onclick="set('accent','${c}')"></span>`).join('')}</div></div>
+    <div class="sw"><div>Stockage local</div><button class="btn sec" onclick="alert('Mirage utilise localStorage pour la mémoire interne. ${Object.keys(localStorage).filter(k=>k.startsWith('mirage-')).length} éléments stockés.')">Voir</button></div>
+    <div class="sw"><div>Session</div><button class="btn danger" onclick="logout()">Déconnexion</button></div>`;
+  }
+  const fab=tab==='vitrine'?`<button class="fab" onclick="compose='post';render()">✍️</button>`:tab==='chats'?`<button class="fab" onclick="newChat()">✚</button>`:'';
+  A.innerHTML=`<header><div style="width:34px;height:34px">${LOGO}</div><h1>${{chats:'Mirage',vitrine:'Vitrine',contacts:'Contacts',channels:'Chaînes',settings:'Profil'}[tab]}</h1></header><main>${b}</main>${fab}<nav>${[['chats','💬','Chats'],['vitrine','🌍','Vitrine'],['contacts','📇','Contacts'],['channels','📣','Chaînes'],['settings','👤','Profil']].map(([k,i,l])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')"><b>${i}</b>${l}</button>`).join('')}</nav>${overlays()}`;
+  const m=$('.msgs');if(m)m.scrollTop=m.scrollHeight;
+  const i=$('#mi');if(i){i.value=keep;if(focus)i.focus()}
+  if($('#pt')){$('#pt').value=tx[0]||'';$('#px').value=tx[1]||''}if($('#stx'))$('#stx').value=tx[2]||'';
+}
+
+function editProfileScreen(){
+  const u=meData||{};
+  return `<header><button class="ib" onclick="editProfile=false;render()">←</button><h1 style="font-size:18px">Modifier mon profil</h1></header>
+  <div style="padding:16px">
+    <div style="text-align:center;margin-bottom:16px">
+      ${avHTML({avatar:u.avatar,aura:S.aura},100)}
+      <label class="btn sec" style="display:inline-block;margin-top:10px;cursor:pointer">📷 Changer la photo<input type="file" accept="image/*" hidden onchange="uploadAvatar(this.files[0])"></label>
+    </div>
+    <input class="f" id="pf-n" placeholder="Prénom" value="${esc(u.firstName||'')}" style="margin-bottom:8px">
+    <input class="f" id="pf-l" placeholder="Nom" value="${esc(u.lastName||'')}" style="margin-bottom:8px">
+    <select class="f" id="pf-c" style="margin-bottom:8px"><option value="">État civil</option>${['Célibataire','En couple','Marié(e)','Divorcé(e)','Veuf(ve)'].map(x=>`<option ${u.civilite===x?'selected':''}>${x}</option>`).join('')}</select>
+    <textarea id="pf-b" rows="3" placeholder="Ma description…">${esc(u.bio||'')}</textarea>
+    <input class="f" id="pf-h" placeholder="#hashtags (séparés par des espaces)" value="${esc((u.hashtags||[]).join(' '))}" style="margin-top:8px">
+    <p style="color:var(--mu);font-size:12px;margin-top:6px">Le nom affiché sur ton profil = Prénom + Nom. Il sera utilisé automatiquement dans Mirage Messenger.</p>
+    <button class="btn" style="width:100%;margin-top:16px" onclick="saveProfile()">Enregistrer</button>
+  </div>`;
+}
+
+function viewProfileScreen(uid){
+  if(uid===me.uid){viewProfile=null;return editProfileScreen()}
+  return `<header><button class="ib" onclick="closeProfile()">←</button><h1 style="font-size:18px">Profil</h1></header><div style="padding:24px;text-align:center"><p style="color:var(--mu)">Chargement…</p></div>`;
+}
+
+function overlays(){
+  let h='';
+  if(cur){const c=chats.find(x=>x.id===cur),o=c?other(c):{name:'…',e:'🙂'},now=Date.now();
+    h+=`<div class="over"><header><button class="ib" onclick="closeChat()">←</button><div class="av" style="width:38px;height:38px;font-size:18px">${esc(o.e)}</div><h1 style="font-size:18px">${esc(o.name)}</h1>${S.eph?'<small style="color:var(--ac)">⏳</small>':''}</header>
+    <div class="msgs">${msgs.filter(m=>!m.exp||m.exp>now).map(m=>`<div class="m ${m.from===me.uid?'me':''} ${m.exp?'eph':''}">${m.img?`<img src="${esc(m.img)}">`:m.video?`<video src="${esc(m.video)}" controls style="max-width:100%;border-radius:10px"></video>`:m.audio?`<audio controls preload="none" src="${esc(m.audio)}"></audio>`:esc(m.text)}<i>${ago(m.ts)}</i></div>`).join('')}</div>
+    ${emoOn?`<div class="emo">${EMO.map(e=>`<span onclick="addE('${e}')">${e}</span>`).join('')}</div>`:''}
+    ${rec?`<div class="bar"><button class="ib" onclick="stopRec(false)">🗑️</button><span class="recdot">●</span><b id="rt">0:00</b><div class="grow"></div><button class="ib send" onclick="stopRec(true)">➤</button></div>`:`<div class="bar"><button class="ib" onclick="emoOn=!emoOn;render()">😊</button><label class="ib">📎<input type="file" accept="image/*,video/*" hidden onchange="this.files[0].type.startsWith('video')?sendVideo(this.files[0]):sendImg(this.files[0])"></label><input type="text" id="mi" placeholder="Message" onkeydown="if(event.key==='Enter')send()"><button class="ib send" style="background:var(--them);color:var(--tx)" onclick="startRec()">🎤</button><button class="ib send" onclick="send()">➤</button></div>`}</div>`}
+  if(compose==='post')h+=`<div class="over"><header><button class="ib" onclick="compose=null;render()">✕</button><h1 style="font-size:18px">Nouveau post</h1></header><div style="padding:12px"><input class="f" id="pt" placeholder="Titre"><textarea id="px" rows="5" placeholder="Écris ton post… (utilise #hashtags)"></textarea><div id="pv"></div><div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><label class="btn sec">📷 Photo<input type="file" accept="image/*" hidden onchange="pickPost(this.files[0])"></label><label class="btn sec">🎥 Vidéo<input type="file" accept="video/*" hidden onchange="pickPostVideo(this.files[0])"></label><button class="btn" onclick="publish()">Publier 🚀</button></div></div></div>`;
+  if(compose==='story')h+=`<div class="over"><header><button class="ib" onclick="compose=null;storyMedia=null;storyType='text';render()">✕</button><h1 style="font-size:18px">Nouvelle story</h1></header><div style="padding:12px"><div class="idea-bar"><button class="${storyType==='text'?'on':''}" onclick="storyType='text';render()">✍️ Texte</button><button class="${storyType==='image'?'on':''}" onclick="storyType='image';render()">🖼️ Photo</button><button class="${storyType==='video'?'on':''}" onclick="storyType='video';render()">🎥 Vidéo</button></div>
+    ${storyType==='text'?`<textarea id="stx" rows="4" placeholder="Ta story…" style="font-size:20px"></textarea><div class="dots" id="sb">${BG.map((c,i)=>`<span style="background:${c};border-color:${i?'transparent':'var(--tx)'}" onclick="sbg='${c}';[...$('#sb').children].forEach(x=>x.style.borderColor='transparent');this.style.borderColor='var(--tx)'"></span>`).join('')}</div>`:
+    storyType==='image'?`<label class="upload-zone">🖼️ Choisir une photo<input type="file" accept="image/*" hidden onchange="pickStoryMedia(this.files[0])"></label>`:
+    `<label class="upload-zone">🎥 Choisir une vidéo<input type="file" accept="video/*" hidden onchange="pickStoryMedia(this.files[0])"></label>`}
+    <div id="sv-pv"></div>
+    <button class="btn" style="margin-top:16px;width:100%" onclick="addStory()">Partager ✨</button></div></div>`;
+  if(story){const s=stories.find(x=>x.id===story);if(s){h+=`<div class="sv" style="background:${s.img||s.video?'#000':esc(s.bg)}" onclick="story=null;render()"><div class="p"><i></i></div><small>${esc(s.e)} ${esc(s.who)}</small>${s.img?`<img src="${esc(s.img)}" style="max-width:100%;max-height:70vh;border-radius:16px">`:s.video?`<video src="${esc(s.video)}" autoplay muted loop style="max-width:100%;max-height:70vh;border-radius:16px"></video>`:esc(s.text)}</div>`;const id=story;setTimeout(()=>{if(story===id){story=null;render()}},5000)}}
+  return h;
+}
+
+function authScreen(){
+  const E=`<p style="color:#e0457b;min-height:20px;font-size:13px;margin:6px 0">${esc(err)}</p>`,lk=(m,t)=>`<p style="margin-top:14px"><a href="#" onclick="swAuth('${m}');return false" style="color:var(--ac)">${t}</a></p>`;
+  let f='';
+  if(me&&!me.displayName)f=`<p style="margin-bottom:10px">Dernière étape : comment t'appelles-tu ?</p><input class="f" id="nm" placeholder="Ton prénom">${E}<button class="btn" onclick="saveName()">Continuer</button>`;
+  else if(authMode==='up')f=`<input class="f" id="nm" placeholder="Prénom" style="margin-bottom:8px"><input class="f" id="em" type="email" placeholder="Email" style="margin-bottom:8px"><input class="f" id="pw" type="password" placeholder="Mot de passe">${E}<button class="btn" onclick="doAuth()">Créer mon compte</button>${lk('in','J\'ai déjà un compte')}`;
+  else f=`<input class="f" id="em" type="email" placeholder="Email" style="margin-bottom:8px"><input class="f" id="pw" type="password" placeholder="Mot de passe">${E}<button class="btn" onclick="doAuth()">Connexion</button>${lk('up','Créer un compte')}`;
+  return `<div class="hello"><div style="width:100%;max-width:320px"><div style="width:96px;height:96px;margin:auto">${LOGO}</div><h1 style="margin:14px 0 4px;font-size:34px">Mirage</h1><p style="color:var(--mu);margin-bottom:16px">Messagerie réelle, éphémère, à toi.</p>${f}</div></div>`;
+}
+
+window.$=$;window.render=render;
+Object.defineProperties(window,{compose:{get:()=>compose,set:v=>compose=v},story:{get:()=>story,set:v=>story=v},emoOn:{get:()=>emoOn,set:v=>emoOn=v},S:{get:()=>S},sbg:{get:()=>sbg,set:v=>sbg=v},storyMedia:{get:()=>storyMedia,set:v=>storyMedia=v},storyType:{get:()=>storyType,set:v=>storyType=v}});
+setInterval(()=>{if(cur&&S.eph&&msgs.some(m=>m.exp))render()},4000);
+
+{const ic='data:image/svg+xml,'+encodeURIComponent(ICON);
+const mf={name:'Mirage',short_name:'Mirage',display:'standalone',background_color:'#7c5cff',theme_color:'#7c5cff',start_url:location.pathname,icons:[{src:ic,sizes:'any',type:'image/svg+xml',purpose:'any'}]};
+const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/manifest+json'}));document.head.appendChild(l);
+const f=document.createElement('link');f.rel='icon';f.href=ic;document.head.appendChild(f);
+const a=document.createElement('link');a.rel='apple-touch-icon';a.href=ic;document.head.appendChild(a)}
+
+render();
+</script>
+</body></html>
